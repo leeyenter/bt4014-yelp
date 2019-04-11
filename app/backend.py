@@ -5,6 +5,8 @@ import json
 
 app = Flask(__name__)
 
+shakeshack = pd.read_parquet("../data/Shake Shack_reviews.parquet")[['address', 'city', 'latitude', 'longitude']].reset_index(drop=True).drop_duplicates()
+
 @app.route("/backend/business/<biz_name>/<search_query>")
 def searchQuery(biz_name, search_query):
     results = pd.read_json("../processed_data/tmp_search_results.json")
@@ -13,7 +15,7 @@ def searchQuery(biz_name, search_query):
 def build_histogram(data_dict):
     output = {}
     for key, val in data_dict.items():
-        hist = np.histogram(val, range=(0, 1))
+        hist = np.histogram(val, range=(-1, 1))
         newVal = {
             'values': [int(x) for x in hist[0]],
             'labels': [float(x) for x in hist[1]][:-1]
@@ -39,7 +41,8 @@ def searchQueryEmpty(biz_name):
 
     return jsonify({
         'results': results_obj,
-        'location_sentiments': build_histogram(location_sentiments)
+        'location_sentiments': build_histogram(location_sentiments), 
+        'info': json.loads(shakeshack.to_json(orient='records'))
     })
 
 @app.route("/")

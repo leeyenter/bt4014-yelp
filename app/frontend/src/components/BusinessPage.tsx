@@ -14,25 +14,18 @@ import {
     Accordion,
     Icon
 } from "semantic-ui-react";
-import { valueCounts, parseValueCounts } from "../utils";
+import {
+    valueCounts,
+    parseValueCounts,
+    sentimentColours,
+    generateChartData
+} from "../utils";
 
 import { Bar, Line } from "react-chartjs-2";
+import Map from "./Map";
 
 const math = require("mathjs");
 const _ = require("lodash");
-
-const sentimentColours = [
-    "#DE1724", 
-    "#D93416", 
-    "#D55D16", 
-    "#D18516",
-    "#CDAB15",
-    "#C2C815",
-    "#97C415",
-    "#6EC014", 
-    "#46BC14",
-    "#20B814"
-];
 
 const bizOptions = [
     { key: "1", text: "Shake Shack", value: "shake-shack" },
@@ -56,6 +49,7 @@ interface State {
     activeIndex: number;
     results: Record[];
     locationSentiments: any;
+    info: any;
 }
 
 class BusinessPage extends Component<{}, State> {
@@ -68,7 +62,8 @@ class BusinessPage extends Component<{}, State> {
 
             activeIndex: 0,
             results: [],
-            locationSentiments: {}
+            locationSentiments: {}, 
+            info: []
         };
 
         this.doSearch();
@@ -85,6 +80,7 @@ class BusinessPage extends Component<{}, State> {
                 this.setState({
                     results: json.results,
                     locationSentiments: json.location_sentiments,
+                    info: json.info,
                     loading: false
                 });
             });
@@ -149,9 +145,10 @@ class BusinessPage extends Component<{}, State> {
     }
 }
 
-interface ResultsProps {
+export interface ResultsProps {
     results: Record[];
     locationSentiments: any;
+    info: any;
     activeIndex: number;
     handleAccordionChange: any;
 }
@@ -163,23 +160,31 @@ class Results extends Component<ResultsProps> {
                 <Segment>
                     <Statistic>
                         <Statistic.Value>
-                            {this.props.results.length}
-                        </Statistic.Value>
-                        <Statistic.Label>Phrases Found</Statistic.Label>
-                    </Statistic>
-                    
-                    <Statistic>
-                        <Statistic.Value>
                             {Object.keys(this.props.locationSentiments).length}
                         </Statistic.Value>
                         <Statistic.Label>Branches</Statistic.Label>
                     </Statistic>
 
+                    <Statistic>
+                        <Statistic.Value>
+                            {this.props.results.length}
+                        </Statistic.Value>
+                        <Statistic.Label>Phrases Found</Statistic.Label>
+                    </Statistic>
                 </Segment>
                 <Accordion fluid styled>
                     <LocationSentiments {...this.props} />
                     <ResultsTable {...this.props} />
                 </Accordion>
+                <Segment>
+                    <Map
+                        {...this.props}
+                        googleMapURL="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=geometry,drawing,places&key=AIzaSyBknhTH5oSCrZD27utNlpzEAzk-dFopNwQ"
+                        loadingElement={<div style={{ height: `100%` }} />}
+                        containerElement={<div style={{ height: `400px` }} />}
+                        mapElement={<div style={{ height: `100%` }} />}
+                    />
+                </Segment>
             </div>
         );
     }
@@ -196,7 +201,13 @@ class LocationSentiments extends Component<ResultsProps> {
             }
             let chartData = {
                 labels: labels,
-                datasets: [{ data: data.values, label: "No. of reviews", backgroundColor: sentimentColours }]
+                datasets: [
+                    {
+                        data: data.values,
+                        label: "No. of reviews",
+                        backgroundColor: sentimentColours
+                    }
+                ]
             };
             let options = {
                 scales: {
@@ -244,9 +255,14 @@ class ResultsTable extends Component<ResultsProps> {
                 <Table.Row key={i}>
                     <Table.Cell>{row.phrase}</Table.Cell>
                     <Table.Cell>{row.count}</Table.Cell>
-                    <Table.Cell>
+                    <Table.Cell className="chart-cell">
                         {math.mean(row.sentiments).toFixed(2)} (std:{" "}
-                        {math.std(row.sentiments).toFixed(2)})
+                        {math.std(row.sentiments).toFixed(2)})<br />
+                        <Bar
+                            data={generateChartData(row.sentiments)}
+                            height={180}
+                            width={200}
+                        />
                     </Table.Cell>
                     <Table.Cell>{locations}</Table.Cell>
                 </Table.Row>

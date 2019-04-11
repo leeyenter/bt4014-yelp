@@ -34,3 +34,36 @@ export function parseValueCounts(valueCounts: any) {
     }
     return <Table compact><Table.Body>{counts}</Table.Body></Table>;
 }
+
+export const sentimentColours = [
+    "#DE1724", 
+    "#D93416", 
+    "#D55D16", 
+    "#D18516",
+    "#CDAB15",
+    "#C2C815",
+    "#97C415",
+    "#6EC014", 
+    "#46BC14",
+    "#20B814"
+];
+
+export function generateChartData(sentimentValues: number[]) {
+    let counts = [0,0,0,0,0,0,0,0,0,0];
+    for (let i = 0; i < sentimentValues.length; i++) {
+        let index = Math.floor((sentimentValues[i] + 1) * 5);
+        if (index == 10) {
+            index = 9;
+        }
+        counts[index]++
+    }
+
+    return {
+        labels: [-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8], 
+        datasets: [{
+            data: counts, 
+            label: 'No. of phrases', 
+            backgroundColor: sentimentColours
+        }]
+    }
+}
