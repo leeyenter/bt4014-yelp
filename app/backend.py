@@ -1,12 +1,46 @@
-from flask import Flask, render_template, send_from_directory
-from backend import backend, callFetchData
+from flask import Flask, send_from_directory, jsonify
+import pandas as pd
+import numpy as np
+import json
 
 app = Flask(__name__)
 
-@app.route("/")
-def index(path):
-    '''Serves the welcome page'''
-    return send_from_directory('faculty', path)
+@app.route("/backend/business/<biz_name>/<search_query>")
+def searchQuery(biz_name, search_query):
+    results = pd.read_json("../processed_data/tmp_search_results.json")
+    return results.to_json(orient="records")
+
+def build_histogram(data_dict):
+    output = {}
+    for key, val in data_dict.items():
+        hist = np.histogram(val, range=(0, 1))
+        newVal = {
+            'values': [int(x) for x in hist[0]],
+            'labels': [float(x) for x in hist[1]][:-1]
+        }
+        output[key] = newVal
+    return output
+
+
+@app.route("/backend/business/<biz_name>/")
+def searchQueryEmpty(biz_name):
+    results = pd.read_json("../processed_data/tmp_search_results.json")
+    results_obj = json.loads(results.to_json(orient="records"))
+    
+    location_sentiments = {}
+    for i in range(results.shape[0]):
+        for j in range(results.iloc[i]['count']):
+            location = results.iloc[i]['locations'][j]
+            sentiment = results.iloc[i]['sentiments'][j]
+            if location not in location_sentiments:
+                location_sentiments[location] = []
+            location_sentiments[location].append(sentiment)
+    
+
+    return jsonify({
+        'results': results_obj,
+        'location_sentiments': build_histogram(location_sentiments)
+    })
 
 @app.route("/")
 def facultyIndex(path):
@@ -27,5 +61,4 @@ def add_header(r):
     return r
 
 if __name__ == "__main__":
-    callFetchData()
     app.run(debug=True, threaded=True)
