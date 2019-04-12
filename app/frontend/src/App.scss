@@ -5,3 +5,14 @@
 .chart-cell {
   width: 260px;
 }
+
+.map-modal-body {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.map-modal-body > div {
+  width: 20vw;
+  padding: 8px;
+}

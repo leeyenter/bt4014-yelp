@@ -23,6 +23,7 @@ import {
 
 import { Bar, Line } from "react-chartjs-2";
 import Map from "./Map";
+import { SentimentBar } from "../charts";
 
 const math = require("mathjs");
 const _ = require("lodash");
@@ -62,7 +63,7 @@ class BusinessPage extends Component<{}, State> {
 
             activeIndex: 0,
             results: [],
-            locationSentiments: {}, 
+            locationSentiments: {},
             info: []
         };
 
@@ -172,10 +173,6 @@ class Results extends Component<ResultsProps> {
                         <Statistic.Label>Phrases Found</Statistic.Label>
                     </Statistic>
                 </Segment>
-                <Accordion fluid styled>
-                    <LocationSentiments {...this.props} />
-                    <ResultsTable {...this.props} />
-                </Accordion>
                 <Segment>
                     <Map
                         {...this.props}
@@ -185,6 +182,10 @@ class Results extends Component<ResultsProps> {
                         mapElement={<div style={{ height: `100%` }} />}
                     />
                 </Segment>
+                <Accordion fluid styled>
+                    <LocationSentiments {...this.props} />
+                    <ResultsTable {...this.props} />
+                </Accordion>
             </div>
         );
     }
@@ -194,35 +195,11 @@ class LocationSentiments extends Component<ResultsProps> {
     render() {
         let locationSentiments = [];
         for (let location in this.props.locationSentiments) {
-            let data = this.props.locationSentiments[location];
-            let labels = [];
-            for (let i = 0; i < data.labels.length; i++) {
-                labels.push(data.labels[i].toFixed(1));
-            }
-            let chartData = {
-                labels: labels,
-                datasets: [
-                    {
-                        data: data.values,
-                        label: "No. of reviews",
-                        backgroundColor: sentimentColours
-                    }
-                ]
-            };
-            let options = {
-                scales: {
-                    xAxes: [
-                        {
-                            categoryPercentage: 1.0,
-                            barPercentage: 0.95
-                        }
-                    ]
-                }
-            };
+            
             locationSentiments.push(
                 <Grid.Column key={location}>
                     <h3>{location}</h3>
-                    <Bar data={chartData} options={options} />
+                    <SentimentBar data={this.props.locationSentiments[location].values} />
                 </Grid.Column>
             );
         }
@@ -258,11 +235,7 @@ class ResultsTable extends Component<ResultsProps> {
                     <Table.Cell className="chart-cell">
                         {math.mean(row.sentiments).toFixed(2)} (std:{" "}
                         {math.std(row.sentiments).toFixed(2)})<br />
-                        <Bar
-                            data={generateChartData(row.sentiments)}
-                            height={180}
-                            width={200}
-                        />
+                        <SentimentBar data={generateChartData(row.sentiments)} />
                     </Table.Cell>
                     <Table.Cell>{locations}</Table.Cell>
                 </Table.Row>
