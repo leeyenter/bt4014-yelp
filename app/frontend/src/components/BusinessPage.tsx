@@ -48,6 +48,7 @@ interface State {
     loading: boolean;
 
     activeIndex: number;
+    numReviews: number;
     results: Record[];
     locationSentiments: any;
     info: any;
@@ -62,12 +63,13 @@ class BusinessPage extends Component<{}, State> {
             loading: false,
 
             activeIndex: 0,
+            numReviews: 0, 
             results: [],
             locationSentiments: {},
             info: []
         };
 
-        this.doSearch();
+        // this.doSearch();
     }
 
     doSearch = () => {
@@ -79,6 +81,7 @@ class BusinessPage extends Component<{}, State> {
             .then((json: any) => {
                 console.log(json);
                 this.setState({
+                    numReviews: json.num_reviews, 
                     results: json.results,
                     locationSentiments: json.location_sentiments,
                     info: json.info,
@@ -147,6 +150,7 @@ class BusinessPage extends Component<{}, State> {
 }
 
 export interface ResultsProps {
+    numReviews: number;
     results: Record[];
     locationSentiments: any;
     info: any;
@@ -164,6 +168,13 @@ class Results extends Component<ResultsProps> {
                             {Object.keys(this.props.locationSentiments).length}
                         </Statistic.Value>
                         <Statistic.Label>Branches</Statistic.Label>
+                    </Statistic>
+
+                    <Statistic>
+                        <Statistic.Value>
+                            {this.props.numReviews}
+                        </Statistic.Value>
+                        <Statistic.Label>Reviews</Statistic.Label>
                     </Statistic>
 
                     <Statistic>
