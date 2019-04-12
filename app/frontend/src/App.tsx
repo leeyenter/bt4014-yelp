@@ -15,7 +15,7 @@ class App extends Component {
                 <Router>
                     <Container>
                         <div>
-                            <Menu>
+                            {/*<Menu>
                                 <NavLink to="/" exact className="item">
                                     Overview
                                 </NavLink>
@@ -25,8 +25,8 @@ class App extends Component {
                                 <NavLink to="/location" className="item">
                                     Location
                                 </NavLink>
-                            </Menu>
-                            <Route exact path="/" component={OverviewPage} />
+                            </Menu>*/}
+                            <Route exact path="/" component={BusinessPage} />
                             <Route path="/business" component={BusinessPage} />
                             <Route path="/location" component={LocationPage} />
                         </div>
