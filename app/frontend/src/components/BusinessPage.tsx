@@ -48,6 +48,7 @@ interface State {
     loading: boolean;
 
     activeIndex: number;
+    reviews: any;
     numReviews: number;
     results: Record[];
     locationSentiments: any;
@@ -63,7 +64,8 @@ class BusinessPage extends Component<{}, State> {
             loading: false,
 
             activeIndex: 0,
-            numReviews: 0, 
+            reviews: [],
+            numReviews: 0,
             results: [],
             locationSentiments: {},
             info: []
@@ -72,17 +74,19 @@ class BusinessPage extends Component<{}, State> {
         // this.doSearch();
     }
 
-    doSearch = () => {
+    doSearch = (e: any) => {
+        e.preventDefault();
         this.setState({ loading: true });
         fetch("/backend/business/" + this.state.biz + "/" + this.state.query)
             .then((resp: any) => {
                 return resp.json();
             })
             .then((json: any) => {
-                console.log(json);
+                // console.log(json);
                 this.setState({
-                    numReviews: json.num_reviews, 
+                    numReviews: json.num_reviews,
                     results: json.results,
+                    reviews: json.reviews, 
                     locationSentiments: json.location_sentiments,
                     info: json.info,
                     loading: false
@@ -135,7 +139,7 @@ class BusinessPage extends Component<{}, State> {
                                 onChange={this.handleChange}
                             />
                         </Form.Group>
-                        <Form.Field control={Button}>Search</Form.Field>
+                        <Form.Field control={Button} onClick={this.doSearch}>Search</Form.Field>
                     </Form>
                 </Segment>
                 {this.state.results.length > 0 && (
@@ -153,6 +157,7 @@ export interface ResultsProps {
     numReviews: number;
     results: Record[];
     locationSentiments: any;
+    reviews: any;
     info: any;
     activeIndex: number;
     handleAccordionChange: any;
@@ -183,6 +188,7 @@ class Results extends Component<ResultsProps> {
                         </Statistic.Value>
                         <Statistic.Label>Phrases Found</Statistic.Label>
                     </Statistic>
+                    <img src='./wordcloud.jpg' />
                 </Segment>
                 <Segment>
                     <Map
@@ -196,6 +202,7 @@ class Results extends Component<ResultsProps> {
                 <Accordion fluid styled>
                     <LocationSentiments {...this.props} />
                     <ResultsTable {...this.props} />
+                    <Reviews {...this.props} />
                 </Accordion>
             </div>
         );
@@ -206,11 +213,12 @@ class LocationSentiments extends Component<ResultsProps> {
     render() {
         let locationSentiments = [];
         for (let location in this.props.locationSentiments) {
-            
             locationSentiments.push(
                 <Grid.Column key={location}>
                     <h3>{location}</h3>
-                    <SentimentBar data={this.props.locationSentiments[location].values} />
+                    <SentimentBar
+                        data={this.props.locationSentiments[location].values}
+                    />
                 </Grid.Column>
             );
         }
@@ -246,7 +254,9 @@ class ResultsTable extends Component<ResultsProps> {
                     <Table.Cell className="chart-cell">
                         {math.mean(row.sentiments).toFixed(2)} (std:{" "}
                         {math.std(row.sentiments).toFixed(2)})<br />
-                        <SentimentBar data={generateChartData(row.sentiments)} />
+                        <SentimentBar
+                            data={generateChartData(row.sentiments)}
+                        />
                     </Table.Cell>
                     <Table.Cell>{locations}</Table.Cell>
                 </Table.Row>
@@ -271,6 +281,49 @@ class ResultsTable extends Component<ResultsProps> {
                                 <Table.HeaderCell>Count</Table.HeaderCell>
                                 <Table.HeaderCell>Sentiment</Table.HeaderCell>
                                 <Table.HeaderCell>Locations</Table.HeaderCell>
+                            </Table.Row>
+                        </Table.Header>
+
+                        <Table.Body>{tblRows}</Table.Body>
+                    </Table>
+                </Accordion.Content>
+            </div>
+        );
+    }
+}
+
+class Reviews extends Component<ResultsProps> {
+    render() {
+        let tblRows = [];
+        
+        for (let i = 0; i < this.props.reviews.length; i++) {
+            let row = this.props.reviews[i];
+            tblRows.push(
+                <Table.Row key={i}>
+                    <Table.Cell>{row.address}</Table.Cell>
+                    <Table.Cell>{row.text}</Table.Cell>
+                    <Table.Cell>{row.stars}</Table.Cell>
+                </Table.Row>
+            );
+        }
+
+        return (
+            <div>
+                <Accordion.Title
+                    active={this.props.activeIndex == 3}
+                    index={2}
+                    onClick={this.props.handleAccordionChange}
+                >
+                    <Icon name="dropdown" />
+                    Filtered Reviews
+                </Accordion.Title>
+                <Accordion.Content active={this.props.activeIndex == 3}>
+                    <Table celled>
+                        <Table.Header>
+                            <Table.Row>
+                                <Table.HeaderCell>Address</Table.HeaderCell>
+                                <Table.HeaderCell>Text</Table.HeaderCell>
+                                <Table.HeaderCell>Rating</Table.HeaderCell>
                             </Table.Row>
                         </Table.Header>
 

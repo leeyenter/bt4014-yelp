@@ -1,18 +1,21 @@
+import re
+
 import pandas as pd
 import spacy
+from spacy_cld import LanguageDetector
 from tqdm import tqdm
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+
 tqdm().pandas()
 nlp = spacy.load("en_core_web_lg")
-import re
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 analyser = SentimentIntensityAnalyzer()
-from spacy_cld import LanguageDetector
 language_detector = LanguageDetector()
 nlp.add_pipe(language_detector)
 
 accepted_pos = {'NOUN', 'PROPN', 'ADV', 'ADJ', 'VERB', 'PRON'}
 contain_pos = {'DET', 'PART', 'ADP', 'NUM'}
 after_cconj_pos = {'ADV', 'ADJ', 'VERB'}
+# Previously used to filter out 'allowed phrases', but in the end not used.
 permitted_start_ends = {('NOUN', 'ADJ'), ('NOUN', 'VERB'), ('PROPN', 'ADJ'), 
                         ('PROPN', 'VERB'), ('ADJ', 'NOUN'), ('ADJ', 'PROPN'), 
                         ('ADV', 'VERB'), ('PROPN', 'NOUN'), ('NOUN', 'PROPN'), 
@@ -64,7 +67,5 @@ for business_name in ['Shake Shack', 'In-N-Out Burger', 'The Cheesecake Factory'
     print("    Pulling phrases")
     reviews['phrases'] = reviews.spacy.progress_apply(pull_phrases)
     reviews = reviews[reviews.phrases.apply(lambda x: len(x) > 0)]
-    print("    Saving files (1/2)")
-    reviews.drop('spacy', axis=1).to_pickle("data/phrases_" + business_name + ".pkl")
-    print("    Saving files (2/2)")
+    print("    Saving file")
     reviews.to_pickle("data/phrases_" + business_name + "_spacy.pkl")

@@ -1,11 +1,25 @@
-from flask import Flask, send_from_directory, jsonify
-import pandas as pd
-import numpy as np
 import json
 import math
+
+import numpy as np
+import pandas as pd
 import spacy
+from flask import Flask, jsonify, send_from_directory
 from tqdm import tqdm
+from wordcloud import WordCloud
+
 tqdm().pandas()
+
+def wordcloud_from_dataframe(df, wordcloud_params=None):
+    try:
+        df['wordcloud_score'] = df['count'] * df['score']
+        mapping = dict(map(tuple, df[['phrase', 'wordcloud_score']].values))
+        WordCloud(**wordcloud_params).generate_from_frequencies(mapping).to_file('frontend/public/wordcloud.jpg')
+    except Exception as e:
+        print("Error in generating wordcloud.")
+        print(e)
+        return False
+    return True
 
 print("Loading spacy")
 
@@ -54,16 +68,18 @@ def searchQuery(biz_name, search_query):
         info_df = cheesecake
         reviews = cheesecake_reviews
 
+    print("Calculating review similarity")
     reviews['text_similarity'] = reviews.spacy.progress_apply(calc_similarity)
-
     sub_reviews = reviews.sort_values('text_similarity', ascending=False).head(500)#[reviews.text_similarity > 0.2]
     sub_phrases = sub_reviews.phrases.apply(lambda x: pd.Series(x)).unstack()
     sub_reviews = sub_reviews.drop('phrases', axis = 1).join(pd.DataFrame(sub_phrases.reset_index(level=0, drop=True))).dropna(axis=0)
+    print("Calculating phrase similarity")
     sub_reviews['similarity'] = sub_reviews[0].progress_apply(calc_similarity)
     sub_reviews['similarity_score'] = sub_reviews['similarity'] + 1.3 * sub_reviews['text_similarity']
 
-    sub_reviews = sub_reviews[sub_reviews.similarity_score >= 1.1].sort_values('similarity_score', ascending=False)
+    sub_reviews = sub_reviews[sub_reviews.similarity_score >= 1.1].sort_values('similarity_score', ascending=False).head(1000)
 
+    print("Summarising phrases")
     phrases_found = []
     for row_index in range(sub_reviews.shape[0]):
         row = sub_reviews.iloc[row_index]
@@ -120,7 +136,7 @@ def searchQuery(biz_name, search_query):
 
     results = pd.DataFrame.from_dict(results, orient='index').sort_values('score', ascending=False).reset_index(drop=True)
     results_obj = json.loads(results.to_json(orient="records"))
-    
+    print("Calc location sentiments")
     location_sentiments = {}
     for i in range(info_df.shape[0]):
         location_sentiments[info_df.iloc[i]["address"] + ", " + info_df.iloc[i]["city"]] = []
@@ -133,10 +149,17 @@ def searchQuery(biz_name, search_query):
                 location_sentiments[location] = []
             location_sentiments[location].append(sentiment)
 
+    print("Prepare word cloud")
+    wordcloud_from_dataframe(results, {'background_color':'white',
+                                'min_font_size':3,
+                                'colormap':'inferno',
+                                'font_step':1})
+
     return jsonify({
         'num_reviews': reviews.shape[0], 
         'results': results_obj,
         'location_sentiments': build_histogram(location_sentiments), 
+        'reviews': json.loads(sub_reviews[['address', 'text', 'stars']].to_json(orient='records')), 
         'info': json.loads(info_df.to_json(orient='records'))
     })
 
@@ -159,4 +182,4 @@ def add_header(r):
     return r
 
 if __name__ == "__main__":
-    app.run(debug=True, threaded=True)
+    app.run(debug=False, threaded=True)

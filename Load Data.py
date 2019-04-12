@@ -30,8 +30,3 @@ for num_reviews in [2000, 50000, 100000, 300000]:
     business_sample.to_parquet("data/"+str(num_reviews)+"_business.parquet")
     user_sample.to_parquet("data/"+str(num_reviews)+"_user.parquet")
     checkin_sample.to_parquet("data/"+str(num_reviews)+"_checkin.parquet")
-    
-#    pq.write_to_dataset(pa.Table.from_pandas(review_sample), root_path='data/'+str(num_reviews)+"_review.parquet", partition_cols=['business_id'])
-#    pq.write_to_dataset(pa.Table.from_pandas(business_sample), root_path='data/'+str(num_reviews)+"_business.parquet", partition_cols=['business_id'])
-#    pq.write_to_dataset(pa.Table.from_pandas(user_sample), root_path='data/'+str(num_reviews)+"_user.parquet", partition_cols=['user_id'])
-#    pq.write_to_dataset(pa.Table.from_pandas(checkin_sample), root_path='data/'+str(num_reviews)+"_checkin.parquet", partition_cols=['business_id'])
