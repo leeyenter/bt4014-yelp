@@ -9,6 +9,7 @@
 The Yelp dataset is expected to reside in the `data` folder. 
 The directory structure should thus be (after running all the scripts):
 
+```
 .
 ├── Business EDA.ipynb
 ├── EDA.ipynb
@@ -102,7 +103,9 @@ The directory structure should thus be (after running all the scripts):
 
 ## Web App
 
-In order to run the web app, there are 2 steps:
+First, you will need to key in your Google Maps API key at `app/frontend/src/components/BusinessPage.tsx` (where it says `key=xxx`). 
+
+Then, in order to run the web app, there are 2 steps:
 
 1. Run the backend (will take a while to load):
 
