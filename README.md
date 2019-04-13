@@ -51,6 +51,8 @@ data
 | `LDA - Business Reviews.ipynb` | Given a company name, build the corpus and dictionary specific for that company's reviews, and conduct a grid search on LDA models for that company. Also displays modal topics. | `data/<company_name>_reviews.parquet` | _(none)_ |
 | `Review Processing.py` | Processes company reviews from the above notebook, by applying sentiment analysis and splitting the review texts into phrases using POS tagging. Also applies Spacy onto the review text and phrases, to reduce the processing time in the future. | `data/<company_name>_spacy` | `data/<company_name>_spacy.pkl` | 
 | `Search Phrases from Reviews.ipynb` | Given a company name and a search query, select relevant phrases from reviews about that company's various branches. | `data/<company_name>_spacy.pkl` | _(none)_ |
+| `IRF.ipynb` | Performs Impulse Response analysis on the 3 companies. | `data/review.json`, `data/business.json`, `data/user.json`, `data/checkin.json` | _(none)_ |
+| `Wordcloud.py` | Creates wordcloud from the processed review data, for reports and web app | `processed_data/tmp_search_results.json` | _wordcloud.jpg_ |
 
 ## Web App
 
