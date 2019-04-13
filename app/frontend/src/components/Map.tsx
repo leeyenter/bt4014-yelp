@@ -6,8 +6,7 @@ import {
     withScriptjs
 } from "react-google-maps";
 import { ResultsProps } from "./BusinessPage";
-import { Modal, Accordion, Icon, Grid } from "semantic-ui-react";
-import { Bar } from "react-chartjs-2";
+import { Modal } from "semantic-ui-react";
 import { SentimentBar } from "../charts";
 import { generateChartData } from "../utils";
 
@@ -43,7 +42,6 @@ class Map extends Component<ResultsProps> {
                 }
 
                 if (phrase_set.sentiments.length > 0) {
-                    // console.log(phrase_set.sentiments)
                     let chart = (
                         <div>
                             <h3>{phrase_set.phrase}</h3>
@@ -53,9 +51,6 @@ class Map extends Component<ResultsProps> {
                         </div>
                     );
                     phrases.push(chart);
-                    // phrases.push(<Grid.Column>
-                    //     {chart}
-                    // </Grid.Column>);
                 }
             }
 

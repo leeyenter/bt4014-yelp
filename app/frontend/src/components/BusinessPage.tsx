@@ -17,11 +17,9 @@ import {
 import {
     valueCounts,
     parseValueCounts,
-    sentimentColours,
     generateChartData
 } from "../utils";
 
-import { Bar, Line } from "react-chartjs-2";
 import Map from "./Map";
 import { SentimentBar } from "../charts";
 
@@ -139,7 +137,7 @@ class BusinessPage extends Component<{}, State> {
                                 onChange={this.handleChange}
                             />
                         </Form.Group>
-                        <Form.Field control={Button} onClick={this.doSearch}>Search</Form.Field>
+                        <Button type='submit'>Search</Button>
                     </Form>
                 </Segment>
                 {this.state.results.length > 0 && (
@@ -188,7 +186,7 @@ class Results extends Component<ResultsProps> {
                         </Statistic.Value>
                         <Statistic.Label>Phrases Found</Statistic.Label>
                     </Statistic>
-                    <img src='./wordcloud.jpg' />
+                    <img src='./wordcloud.jpg' key={this.props.numReviews+'_'+this.props.results.length} />
                 </Segment>
                 <Segment>
                     <Map
@@ -311,7 +309,7 @@ class Reviews extends Component<ResultsProps> {
             <div>
                 <Accordion.Title
                     active={this.props.activeIndex == 3}
-                    index={2}
+                    index={3}
                     onClick={this.props.handleAccordionChange}
                 >
                     <Icon name="dropdown" />
