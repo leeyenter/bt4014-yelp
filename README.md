@@ -47,6 +47,7 @@ data
 | `Business EDA.ipynb` | Conducts some EDA on the businesses. | `data/review.json`, `data/business.json` | _(none)_ |
 | `Tokenise.py` | Uses Spacy to tokenise the `review.json` data | `data/review.json` | `processed_data/token.json` |
 | `LDA - Model Building & Evalution.ipynb` | Prepares the corpus and dictionary for all reviews, and conducts grid search to find the top few LDA models. Also displays topic distribution for the models. | `processed_data/token.json` | `processed_data/corpus.json`, `processed_data/corpus.pkl`, `processed_data/dictionary`, and various models in `models/lda` |
+| `Train W2V.py` | Trains a Word2Vec model on all reviews on food-related businesses. | `data/review.json`, `data/business.json` | `processed_data/token.json`, `model/w2v.obj` |
 | `Review Selection & Loading.ipynb` | Selects all reviews for a given company, and use Spacy on the review text. Saves the data as a Parquet file (for non-Spacy dataframe) and a pickle file (with Spacy) | `data/business.json`, `data/review.json` | `data/<company_name>_reviews.parquet`, `data/<company_name>_spacy` | 
 | `LDA - Business Reviews.ipynb` | Given a company name, build the corpus and dictionary specific for that company's reviews, and conduct a grid search on LDA models for that company. Also displays modal topics. | `data/<company_name>_reviews.parquet` | _(none)_ |
 | `Review Processing.py` | Processes company reviews from the above notebook, by applying sentiment analysis and splitting the review texts into phrases using POS tagging. Also applies Spacy onto the review text and phrases, to reduce the processing time in the future. | `data/<company_name>_spacy` | `data/<company_name>_spacy.pkl` | 
@@ -74,5 +75,14 @@ In order to run the web app, there are 2 steps:
     ```
 
 3. A browser window should open, pointing you to http://localhost:3000. 
+
+If the page keeps refreshing when the search has completed, you may want to build the React frontend first, then load it using Flask:
+
+```shell
+cd app/frontend
+npm run build
+```
+
+Then, visit http://localhost:5000 instead of the above link. 
 
 Do note that you will need to have the `data/<company_name>_reviews.parquet` and `data/phrases_<company_name>_spacy.pkl` files loaded for all the companies that you want to analyse. 

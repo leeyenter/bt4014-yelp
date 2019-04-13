@@ -7,7 +7,13 @@ from tqdm import tqdm
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 tqdm().pandas()
+import gensim
 nlp = spacy.load("en_core_web_lg")
+model = gensim.models.Word2Vec.load("models/w2v.obj")
+keys = []
+for idx in range(len(model.wv.vocab)):
+    keys.append(model.wv.index2word[idx])
+nlp.vocab.vectors = spacy.vocab.Vectors(data=model.wv.syn0, keys=keys)
 analyser = SentimentIntensityAnalyzer()
 language_detector = LanguageDetector()
 nlp.add_pipe(language_detector)
@@ -68,4 +74,6 @@ for business_name in ['Shake Shack', 'In-N-Out Burger', 'The Cheesecake Factory'
     reviews['phrases'] = reviews.spacy.progress_apply(pull_phrases)
     reviews = reviews[reviews.phrases.apply(lambda x: len(x) > 0)]
     print("    Saving file")
+    print(reviews.shape)
+    print(reviews.head())
     reviews.to_pickle("data/phrases_" + business_name + "_spacy.pkl")
