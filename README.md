@@ -7,16 +7,61 @@
 ### Project Structure
 
 The Yelp dataset is expected to reside in the `data` folder. 
-The directory structure should thus be:
+The directory structure should thus be (after running all the scripts):
 
-```
-data
-├── business.json
-├── checkin.json
-├── photo.json (unused, can be deleted)
-├── review.json
-├── tip.json (unused, can be deleted)
-└── user.json
+.
+├── Business EDA.ipynb
+├── EDA.ipynb
+├── IRF.ipynb
+├── LDA - Business Reviews.ipynb
+├── LDA - Model Building & Evaluation.ipynb
+├── Load Data.ipynb
+├── Load Data.py
+├── README.md
+├── Review Processing.py
+├── Review Selection & Loading.ipynb
+├── Search Phrases From Reviews.ipynb
+├── Tokenise.py
+├── Train W2V.py
+├── Wordcloud.py
+├── app
+│   ├── backend.py
+│   └── frontend
+│       ├── README.md
+│       ├── build
+│       ├── node_modules
+│       ├── package-lock.json
+│       ├── package.json
+│       ├── public
+│       ├── src
+│       └── tsconfig.json
+├── data
+│   ├── ... sampled data here ...
+│   ├── In-N-Out Burger_reviews.parquet
+│   ├── In-N-Out Burger_spacy
+│   ├── Shake Shack_reviews.parquet
+│   ├── Shake Shack_spacy
+│   ├── The Cheesecake Factory_reviews.parquet
+│   ├── The Cheesecake Factory_spacy
+│   ├── checkin.json
+│   ├── phrases_In-N-Out Burger_spacy.pkl
+│   ├── phrases_Shake Shack_spacy.pkl
+│   ├── phrases_The Cheesecake Factory_spacy.pkl
+│   ├── review.json
+│   ├── review.parquet
+│   └── user.json
+├── models
+│   ├── lda
+│   │   └── ... models here ...
+│   ├── w2v.obj
+│   ├── w2v.obj.trainables.syn1neg.npy
+│   ├── w2v.obj.wv.vectors.npy
+│   └── word2vec_3biz
+└── processed_data
+    ├── corpus.json
+    ├── corpus.pkl
+    ├── dictionary
+    └── token.json
 ```
 
 ### Python Packages Used
